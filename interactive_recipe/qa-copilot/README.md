@@ -21,7 +21,9 @@ Q&A Copilot is the intelligent question-answering component of the InteRecipe sy
 
 1. Install dependencies
    ```bash
-   uv pip install .
+   cd ..
+   uv pip install .[qa]
+   cd qa-copilot
    ```
 
 2. Install and start Redis

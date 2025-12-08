@@ -19,16 +19,18 @@ from prompts import multi_op_prompt
 from assistant import consult
 from st_operator_pool import StOperatorPool
 from attributor import TextEmbdSimilarityAttributor
-from copilot_client import call_copilot_service
+from copilot_client import call_copilot_service, clear_copilot_chat_history
 
 import time
 import threading
 import queue
+import uuid
 
+USER_ID = "INTERACTIVE_RECIPE"
 
-def call_service_in_thread(chat_history, q):
+def call_service_in_thread(chat_history, q, session_id=None, user_id=None):
     try:
-        response_generator = call_copilot_service(chat_history)
+        response_generator = call_copilot_service(chat_history, session_id, user_id)
         for chunk in response_generator:
             q.put(chunk)
     finally:
@@ -413,9 +415,15 @@ class Visualize:
 
         if "copilot_chat_history" not in st.session_state:
             st.session_state.copilot_chat_history = []
+            st.session_state.session_id = str(uuid.uuid4())
 
         if st.button("Clear Conversation History", width='stretch'):
-            st.session_state.copilot_chat_history = []
+            result = clear_copilot_chat_history(st.session_state.session_id, USER_ID)
+            if result == "ok":
+                st.success("Conversation history cleared.")
+                st.session_state.copilot_chat_history = []
+            else:
+                st.error("Failed to clear conversation history.")
             # st.rerun()
 
         chat_container = st.container(height=300)
@@ -442,7 +450,7 @@ class Visualize:
                     response_placeholder = st.empty()
                     
                     q = queue.Queue()
-                    thread = threading.Thread(target=call_service_in_thread, args=(list(st.session_state.copilot_chat_history), q))
+                    thread = threading.Thread(target=call_service_in_thread, args=(list(st.session_state.copilot_chat_history), q, st.session_state.session_id, USER_ID))
                     thread.start()
                     
                     # Wait for the response

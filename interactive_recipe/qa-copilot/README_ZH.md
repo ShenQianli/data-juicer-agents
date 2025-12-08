@@ -21,7 +21,9 @@ Q&A Copilot 是 InteRecipe 系统的智能问答组件，基于 AgentScope 框�
 
 1. 安装依赖
    ```bash
-   uv pip install .
+   cd ../
+   uv pip install .[qa]
+   cd qa-copilot
    ```
 
 2. 安装和启动 Redis

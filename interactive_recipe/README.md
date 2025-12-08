@@ -18,14 +18,15 @@ export DASHSCOPE_API_KEY=your_dashscope_key
 
 Install dependencies:
 ```bash
-pip install -r requirements.txt
+uv pip install .[all]
 ```
 
-Start the copilot server (replace the `DATA_JUICER_PATH` variable in `./qa-copilot/setup_server.sh` with the absolute path to your data-juicer repository):
+[Optional] Start the copilot server (replace the `DATA_JUICER_PATH` variable in `./qa-copilot/setup_server.sh` with the absolute path to your data-juicer repository):
 
 ```bash
 cd qa-copilot
 bash setup_server.sh
+cd ..
 ```
 
 Launch the demo with streamlit:
@@ -35,7 +36,7 @@ streamlit run app.py
 
 > InteRecipe's core functionality and Q&A Copilot (Ask AI component) are mutually independent.
 > The latter requires separate deployment but does not affect the operation of the former.
-> To enable Q&A Copilot, please refer to [./qa-copilot/README.md](./qa-copilot/README.md)
+> About Q&A Copilot Detailed Configuration, please refer to [./qa-copilot/README.md](./qa-copilot/README.md)
 
 
 #### Operator Pool Usage

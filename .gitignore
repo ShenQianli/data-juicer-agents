@@ -133,6 +133,7 @@ dmypy.json
 # OS
 .DS_Store
 Thumbs.db
+*.rdb
 
 # DataJuicer Agent specific
 outputs/
@@ -141,3 +142,5 @@ logs/
 cache_retrieve/
 vector_index_cache/
 interactive_recipe/qa-copilot/asset/text_material/
+data-juicer/
+data_juicer_hub/
