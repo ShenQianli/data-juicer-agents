@@ -21,7 +21,9 @@ Q&A Copilot is the intelligent question-answering component of the InteRecipe sy
 
 1. Install dependencies
    ```bash
-   uv pip install .
+   cd ..
+   uv pip install .[qa]
+   cd qa-copilot
    ```
 
 2. Install and start Redis
@@ -109,24 +111,21 @@ Content-Type: application/json
 }
 ```
 
-### Command Line Mode
+### WebUI
 
-You can also run the command line interactive mode directly:
+you can simply run the following command in your terminal:
 
 ```bash
-python agent_run.py
+npx @agentscope-ai/chat agentscope-runtime-webui --url http://localhost:8080/process
 ```
 
-Supported commands:
-- `exit/quit/q`: Exit the program
-- `clear`: Clear current session history
-- `tools`: View available tools list
+Refer to [AgentScope Runtime WebUI](https://runtime.agentscope.io/en/webui.html#method-2-quick-start-via-npx) for more information.
 
 ## Configuration Details
 
 ### Model Configuration
 
-In `agent_run.py`, you can configure the language model to use:
+In `app_deploy.py`, you can configure the language model to use:
 
 ```python
 model=DashScopeChatModel(

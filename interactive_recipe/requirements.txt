@@ -1,6 +1,5 @@
 loguru
 streamlit
-py-data-juicer
 dashscope
 oyaml
 openai

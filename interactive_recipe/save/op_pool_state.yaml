@@ -1,51 +1,81 @@
-document_deduplicator:
-  name: document_deduplicator
-  desc: Deduplicates samples at the document level using exact matching. This operator
-    computes an MD5 hash for each sample's text. It can optionally convert the text
-    to lowercase and ignore non-alphabet characters, including whitespaces, digits,
-    and punctuation. The deduplication is based on the computed hash values, where
-    samples with identical hashes are considered duplicates. The `compute_hash` method
-    adds a 'hash' key to each sample, storing its MD5 hash. During processing, the
-    first occurrence of each unique hash is kept, and subsequent duplicates are filtered
-    out. If the `show_num` parameter is set, the operator also returns a specified
-    number of duplicate pairs for inspection.
+image_watermark_filter:
+  name: image_watermark_filter
+  desc: Filter to keep samples whose images have no watermark with high probability.
   enabled: true
   args:
-    lowercase:
-      name: lowercase
-      desc: Whether to convert sample text to lower case
+    hf_watermark_model:
+      name: hf_watermark_model
+      desc: watermark detection model name on huggingface.
+      type: str
+      default: amrul-hzz/watermark_detector
+      v: amrul-hzz/watermark_detector
+      options: null
+      min: null
+      max: null
+    trust_remote_code:
+      name: trust_remote_code
+      desc: Whether to trust the remote code for loading huggingface model.
       type: bool
       default: false
-      v: true
+      v: false
       options:
       - true
       - false
       min: null
       max: null
-    ignore_non_character:
-      name: ignore_non_character
-      desc: Whether to ignore non-alphabet characters, including whitespaces, digits,
-        and punctuations
-      type: bool
-      default: false
-      v: true
+    prob_threshold:
+      name: prob_threshold
+      desc: the predicted watermark probability threshold for samples. range from
+        0 to 1. Samples with watermark probability less than this threshold will be
+        kept.
+      type: float
+      default: 0.8
+      v: 0.8
+      options: null
+      min: 0.0
+      max: 1.0
+    any_or_all:
+      name: any_or_all
+      desc: 'keep this sample with ''any'' or ''all'' strategy of all images. ''any'':
+        keep this sample if any images meet the condition. ''all'': keep this sample
+        only if all images meet the condition.'
+      type: str
+      default: any
+      v: any
       options:
-      - true
-      - false
+      - any
+      - all
       min: null
       max: null
   stats: {}
+language_id_score_filter:
+  name: language_id_score_filter
+  desc: Filter to keep samples in a specific language with confidence score larger
+    than a specific min value.
+  enabled: true
+  args:
+    lang:
+      name: lang
+      desc: Samples in which languages to keep.
+      type: Union[str, List[str]]
+      default: ''
+      v: ''
+      options: null
+      min: null
+      max: null
+    min_score:
+      name: min_score
+      desc: The min language identification confidence scores of samples to keep.
+      type: float
+      default: 0.8
+      v: 0.8
+      options: null
+      min: -1000000.0
+      max: 1000000.0
+  stats: {}
 alphanumeric_filter:
   name: alphanumeric_filter
-  desc: Filter to keep samples with an alphabet/numeric ratio within a specific range.
-    This operator filters samples based on the ratio of alphanumeric characters or
-    tokens. It keeps samples where the ratio of alphanumeric characters (or tokens)
-    to the total number of characters (or tokens) is within the specified range. The
-    ratio is computed either character-based or token-based, depending on the `tokenization`
-    parameter. If `tokenization` is True, it uses a Hugging Face tokenizer to count
-    tokens. The key metric used for filtering is 'alpha_token_ratio' if tokenization
-    is enabled, otherwise 'alnum_ratio'. The operator caches these metrics in the
-    stats field for each sample.
+  desc: Filter to keep samples with alphabet/numeric ratio within a specific range.
   enabled: true
   args:
     tokenization:
@@ -67,398 +97,18 @@ alphanumeric_filter:
         alphabet/numeric ratio is below this parameter.
       type: float
       default: 0.25
-      v: 0.5802103879026956
+      v: 0.25
       options: null
-      min: 0.5802103879026956
-      max: 0.8160136286201022
+      min: -1000000.0
+      max: 1000000.0
     max_ratio:
       name: max_ratio
       desc: The max filter ratio in alphanumeric op, samples will be filtered if their
         alphabet/numeric ratio exceeds this parameter.
       type: float
       default: 1000000.0
-      v: 0.8160136286201022
-      options: null
-      min: 0.5802103879026956
-      max: 0.8160136286201022
-  stats:
-    count: 9
-    mean: 0.7205720785507881
-    std: 0.0848941522804547
-    min: 0.5802103879026956
-    max: 0.8160136286201022
-    quantiles:
-    - 0.5802103879026956
-    - 0.5849519754494128
-    - 0.58969356299613
-    - 0.5944351505428471
-    - 0.5991767380895643
-    - 0.6039183256362815
-    - 0.6086599131829986
-    - 0.6134015007297158
-    - 0.6181430882764329
-    - 0.6228846758231501
-    - 0.6276262633698673
-    - 0.6323678509165844
-    - 0.6371094384633016
-    - 0.6403645702812525
-    - 0.6421332463704372
-    - 0.643901922459622
-    - 0.6456705985488067
-    - 0.6474392746379913
-    - 0.6492079507271761
-    - 0.6509766268163608
-    - 0.6527453029055454
-    - 0.6545139789947302
-    - 0.6562826550839149
-    - 0.6580513311730997
-    - 0.6598200072622843
-    - 0.661588683351469
-    - 0.6635683700806062
-    - 0.6655480568097433
-    - 0.6675277435388804
-    - 0.6695074302680176
-    - 0.6714871169971547
-    - 0.6734668037262919
-    - 0.6754464904554289
-    - 0.6774261771845661
-    - 0.6794058639137033
-    - 0.6813855506428403
-    - 0.6833652373719775
-    - 0.6853449241011147
-    - 0.6877702656559448
-    - 0.6906412620364679
-    - 0.693512258416991
-    - 0.6963832547975142
-    - 0.6992542511780373
-    - 0.7021252475585604
-    - 0.7049962439390836
-    - 0.7078672403196066
-    - 0.7107382367001297
-    - 0.7136092330806528
-    - 0.716480229461176
-    - 0.7193512258416991
-    - 0.7222222222222222
-    - 0.7251197691197692
-    - 0.728017316017316
-    - 0.730914862914863
-    - 0.7338124098124098
-    - 0.7367099567099568
-    - 0.7396075036075036
-    - 0.7425050505050506
-    - 0.7454025974025974
-    - 0.7483001443001444
-    - 0.7511976911976912
-    - 0.7540952380952382
-    - 0.756992784992785
-    - 0.7603578059475024
-    - 0.7641903009593902
-    - 0.7680227959712781
-    - 0.7718552909831659
-    - 0.7756877859950537
-    - 0.7795202810069416
-    - 0.7833527760188294
-    - 0.7871852710307172
-    - 0.791017766042605
-    - 0.7948502610544929
-    - 0.7986827560663807
-    - 0.8025152510782685
-    - 0.8063477460901564
-    - 0.8070006848530675
-    - 0.8076536236159787
-    - 0.8083065623788898
-    - 0.8089595011418009
-    - 0.8096124399047121
-    - 0.8102653786676233
-    - 0.8109183174305344
-    - 0.8115712561934455
-    - 0.8122241949563567
-    - 0.8128771337192678
-    - 0.813530072482179
-    - 0.8141830112450902
-    - 0.8145696465462879
-    - 0.8146899783857725
-    - 0.814810310225257
-    - 0.8149306420647415
-    - 0.8150509739042261
-    - 0.8151713057437106
-    - 0.8152916375831951
-    - 0.8154119694226796
-    - 0.8155323012621641
-    - 0.8156526331016486
-    - 0.8157729649411332
-    - 0.8158932967806176
-character_repetition_filter:
-  name: character_repetition_filter
-  desc: Filter to keep samples with character-level n-gram repetition ratio within
-    a specific range. This operator calculates the character-level n-gram repetition
-    ratio for each sample and filters out samples that do not fall within the specified
-    range. The repetition ratio is computed based on the frequency of n-grams in the
-    text. The key metric 'char_rep_ratio' is cached in the stats field. Samples are
-    kept if their 'char_rep_ratio' is between the specified min and max ratios. The
-    n-gram length, minimum, and maximum ratios are configurable.
-  enabled: true
-  args:
-    rep_len:
-      name: rep_len
-      desc: Repetition length for char-level n-gram.
-      type: int
-      default: 10
-      v: 10
-      options: null
-      min: 1
-      max: 1000000
-    min_ratio:
-      name: min_ratio
-      desc: The min filter ratio in this op, samples will be filtered if their char-level
-        n-gram repetition ratio is below this parameter.
-      type: float
-      default: 0.0
-      v: 0.0
+      v: 1000000.0
       options: null
       min: -1000000.0
       max: 1000000.0
-    max_ratio:
-      name: max_ratio
-      desc: The max filter ratio in this op, samples will be filtered if their char-level
-        n-gram repetition ratio exceeds this parameter.
-      type: float
-      default: 0.5
-      v: 0.6
-      options: null
-      min: -1000000.0
-      max: 1000000.0
-  stats: {}
-flagged_words_filter:
-  name: flagged_words_filter
-  desc: Filter to keep samples with flagged-word ratio in a specified range. This
-    operator filters out samples based on the ratio of flagged words. It uses a list
-    of flagged words, which can be language-specific or combined from multiple languages.
-    The flagged-word ratio is computed as the number of flagged words divided by the
-    total number of words in the sample. If tokenization is enabled, a Hugging Face
-    tokenizer is used to split the text into words. The operator supports word augmentation
-    for certain languages, which can be configured. The key metric, 'flagged_words_ratio',
-    is cached and reused if already computed. Samples are kept if their flagged-word
-    ratio falls within the specified min and max ratio.
-  enabled: true
-  args:
-    lang:
-      name: lang
-      desc: Consider flagged words in what language. If lang == "all", we will adopt
-        the one merged from all the available languages
-      type: str
-      default: en
-      v: en
-      options: null
-      min: null
-      max: null
-    tokenization:
-      name: tokenization
-      desc: Whether to use model to tokenize documents
-      type: bool
-      default: false
-      v: true
-      options:
-      - true
-      - false
-      min: null
-      max: null
-    min_ratio:
-      name: min_ratio
-      desc: The min filter ratio in this op.
-      type: float
-      default: 0.0
-      v: 0.0
-      options: null
-      min: -1000000.0
-      max: 1000000.0
-    max_ratio:
-      name: max_ratio
-      desc: The max filter ratio in this op.
-      type: float
-      default: 0.045
-      v: 0.017
-      options: null
-      min: -1000000.0
-      max: 1000000.0
-    flagged_words_dir:
-      name: flagged_words_dir
-      desc: The directory storing the flagged_words file(s) whose name includes "flagged_words"
-        and in json format
-      type: str
-      default: /home/cmgzn/.cache/data_juicer/assets
-      v: /home/cmgzn/.cache/data_juicer/assets
-      options: null
-      min: null
-      max: null
-    use_words_aug:
-      name: use_words_aug
-      desc: Whether to augment words, especially for Chinese and Vietnamese
-      type: bool
-      default: false
-      v: false
-      options:
-      - true
-      - false
-      min: null
-      max: null
-    words_aug_group_sizes:
-      name: words_aug_group_sizes
-      desc: The group size of words to augment
-      type: List[int]
-      default:
-      - 2
-      v:
-      - 2
-      options: null
-      min: null
-      max: null
-    words_aug_join_char:
-      name: words_aug_join_char
-      desc: The join char between words to augment
-      type: str
-      default: ''
-      v: ''
-      options: null
-      min: null
-      max: null
-  stats: {}
-maximum_line_length_filter:
-  name: maximum_line_length_filter
-  desc: Filter to keep samples with a maximum line length within a specified range.
-    This operator filters out samples based on the length of their longest line. It
-    retains samples where the maximum line length is within the specified `min_len`
-    and `max_len` range. The maximum line length is computed by splitting the text
-    into lines and measuring the length of each line. If the context is provided,
-    it uses precomputed lines stored under the key 'lines' in the context. The maximum
-    line length is cached in the 'max_line_length' field of the stats.
-  enabled: true
-  args:
-    min_len:
-      name: min_len
-      desc: The min filter length in this op, samples will be filtered if their maximum
-        line length is below this parameter.
-      type: int
-      default: 10
-      v: 20
-      options: null
-      min: -1000000
-      max: 1000000
-    max_len:
-      name: max_len
-      desc: The max filter length in this op, samples will be filtered if their maximum
-        line length exceeds this parameter.
-      type: int
-      default: 1000000
-      v: 1000000
-      options: null
-      min: -1000000
-      max: 1000000
-  stats: {}
-text_length_filter:
-  name: text_length_filter
-  desc: Filter to keep samples with total text length within a specific range. This
-    operator filters out samples based on their total text length. It retains samples
-    where the text length is between the specified minimum and maximum lengths. The
-    text length is computed as the number of characters in the sample's text. If the
-    'text_len' key is already present in the sample's stats, it will be reused; otherwise,
-    it will be computed. The operator processes samples in batches for efficiency.
-  enabled: true
-  args:
-    min_len:
-      name: min_len
-      desc: The min text length in the filtering. samples will be filtered if their
-        text length is below this parameter.
-      type: int
-      default: 10
-      v: 30
-      options: null
-      min: -1000000
-      max: 1000000
-    max_len:
-      name: max_len
-      desc: The max text length in the filtering. samples will be filtered if their
-        text length exceeds this parameter.
-      type: int
-      default: 1000000
-      v: 1000000
-      options: null
-      min: -1000000
-      max: 1000000
-  stats: {}
-document_simhash_deduplicator:
-  name: document_simhash_deduplicator
-  desc: 'Deduplicates samples at the document level using SimHash. This operator computes
-    SimHash values for each sample and removes duplicates based on a specified Hamming
-    distance threshold. It supports different tokenization methods: ''space'', ''punctuation'',
-    and ''character''. The SimHash is computed over shingles of a given window size,
-    and the deduplication process clusters similar documents and retains only one
-    from each cluster. The default mode converts text to lowercase and can ignore
-    specific patterns. The key metric, Hamming distance, is used to determine similarity
-    between SimHash values. Important notes: - The `ignore_pattern` parameter can
-    be used to exclude certain substrings during SimHash computation. - For punctuation-based
-    tokenization, the `ignore_pattern` should not include punctuations to avoid conflicts.
-    - The `hamming_distance` must be less than the number of blocks (`num_blocks`).
-    - Only the first sample in each cluster is retained by default.'
-  enabled: true
-  args:
-    tokenization:
-      name: tokenization
-      desc: tokenization method for sample texts
-      type: str
-      default: space
-      v: space
-      options: null
-      min: null
-      max: null
-    window_size:
-      name: window_size
-      desc: window size of shingling
-      type: int
-      default: 6
-      v: 3
-      options: null
-      min: 1
-      max: 1000000
-    lowercase:
-      name: lowercase
-      desc: whether to convert text to lower case first
-      type: bool
-      default: true
-      v: true
-      options:
-      - true
-      - false
-      min: null
-      max: null
-    ignore_pattern:
-      name: ignore_pattern
-      desc: whether to ignore sub-strings with specific pattern when computing simhash
-      type: Optional[str]
-      default: null
-      v: \p{P}
-      options: null
-      min: null
-      max: null
-    num_blocks:
-      name: num_blocks
-      desc: number of blocks in simhash computing
-      type: int
-      default: 6
-      v: 9
-      options: null
-      min: 1
-      max: 1000000
-    hamming_distance:
-      name: hamming_distance
-      desc: the max hamming distance threshold in near-duplicate detection. When the
-        hamming distance of two sample texts is <= this threshold, they are regarded
-        as similar samples and this op will only keep one of them after deduplication.
-        This threshold should be always less than num_blocks
-      type: int
-      default: 4
-      v: 7
-      options: null
-      min: 1
-      max: 1000000
   stats: {}

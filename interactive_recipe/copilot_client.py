@@ -1,9 +1,8 @@
 import os
 import json
 import requests
-import uuid
 
-def call_copilot_service(copilot_chat_history: list = []):
+def call_copilot_service(copilot_chat_history: list = [], session_id: str = None, user_id: str = None):
     """
     Calls the Copilot service with the chat history and streams the response.
 
@@ -15,9 +14,6 @@ def call_copilot_service(copilot_chat_history: list = []):
     """
     # Get service URL from environment variable, with local default
     service_url = os.getenv("COPILOT_SERVICE_URL", "http://localhost:8080")
-    
-    # Generate a session ID if not provided
-    session_id = str(uuid.uuid4())
     
     try:
         # Convert chat history to the new API format
@@ -42,6 +38,7 @@ def call_copilot_service(copilot_chat_history: list = []):
                 },
             ],
             "session_id": session_id,
+            "user_id": user_id,
         }
         
         # Make the HTTP request
@@ -101,3 +98,42 @@ def call_copilot_service(copilot_chat_history: list = []):
         # Handle other exceptions
         error_msg = f"Unexpected error: {str(e)}"
         yield error_msg
+
+def clear_copilot_chat_history(session_id: str = None, user_id: str = None):
+    """
+    Clears the Copilot chat history.
+    """
+    service_url = os.getenv("COPILOT_SERVICE_URL", "http://localhost:8080")
+    request_body = {
+        "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "",
+                        },
+                    ],
+                },
+            ],
+        "session_id": session_id,
+        "user_id": user_id,
+    }
+    
+    response = requests.post(
+            f"{service_url}/clear",
+            headers={
+                'Content-Type': 'application/json',
+            },
+            json=request_body,
+        )
+    
+    if response.status_code != 200:
+        error_msg = f"API Error: {response.status_code} - {response.text}"
+        return error_msg
+
+    if response.json().get("status") == "ok":
+        return "ok"
+    else:
+        return "error"
+

@@ -21,7 +21,9 @@ Q&A Copilot 是 InteRecipe 系统的智能问答组件，基于 AgentScope 框�
 
 1. 安装依赖
    ```bash
+   cd ../
    uv pip install .
+   cd qa-copilot
    ```
 
 2. 安装和启动 Redis
@@ -110,24 +112,21 @@ Content-Type: application/json
 }
 ```
 
-### 命令行模式
+### WebUI
 
-也可以直接运行命令行交互模式：
+你可以直接在终端中运行以下命令：
 
 ```bash
-python agent_run.py
+npx @agentscope-ai/chat agentscope-runtime-webui --url http://localhost:8080/process
 ```
 
-支持的命令：
-- `exit/quit/q`：退出程序
-- `clear`：清除当前会话历史
-- `tools`：查看可用工具列表
+更多信息请参考 [AgentScope Runtime WebUI](https://runtime.agentscope.io/en/webui.html#method-2-quick-start-via-npx)。
 
 ## 配置说明
 
 ### 模型配置
 
-在 `agent_run.py` 中可以配置使用的语言模型：
+在 `app_deploy.py` 中可以配置使用的语言模型：
 
 ```python
 model=DashScopeChatModel(
