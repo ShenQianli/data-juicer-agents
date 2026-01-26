@@ -82,16 +82,17 @@ FASTAPI_CONFIG_PATH = os.getenv("FASTAPI_CONFIG_PATH", "")
 
 fastapi_kwargs = {}
 try:
-    if os.path.exists(FASTAPI_CONFIG_PATH):
+    if FASTAPI_CONFIG_PATH and os.path.exists(FASTAPI_CONFIG_PATH):
         with open(FASTAPI_CONFIG_PATH, "r", encoding="utf-8") as f:
             fastapi_kwargs = json.load(f) or {}
-        print(f"✅ fastapi_kwargs: {fastapi_kwargs}")
+        print(f"✅ Loaded FastAPI config from {FASTAPI_CONFIG_PATH}: {fastapi_kwargs}")
+    elif FASTAPI_CONFIG_PATH:
+        print(f"ℹ️  Config file not found at {FASTAPI_CONFIG_PATH}, using defaults.")
     else:
-        print(f"ℹ️  FASTAPI_CONFIG_PATH not found: {FASTAPI_CONFIG_PATH}, using defaults")
-except Exception as e:
-    print(f"⚠️  Failed to load FastAPI config from {FASTAPI_CONFIG_PATH}: {e}")
+        print("ℹ️  FASTAPI_CONFIG_PATH not set, using defaults.")
+except (json.JSONDecodeError, IOError) as e:
+    print(f"⚠️  Failed to load or parse FastAPI config from {FASTAPI_CONFIG_PATH}: {e}")
     fastapi_kwargs = {}
-    print(f"⚠️fastapi_kwargs: {fastapi_kwargs}")
 
 
 
