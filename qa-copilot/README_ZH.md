@@ -92,7 +92,9 @@ Q&A Copilot 是 Data-Juicer Agents 系统中的智能问答组件，基于 Agent
 
    **模型配置：**
    ```bash
-   export MAX_TOKENS="600000"  # 上下文窗口最大 token 数（默认：600000）
+   export MAX_TOKENS="200000"  # 上下文窗口最大 token 数（默认：200000）
+   # 注意：此值在传递给 DashScopeChatFormatter 时会乘以 3
+   # 因为 CharTokenCounter 基于字符计数，中英文混合文本约 3 个字符 ≈ 1 个 token
    ```
 
    **Qdrant 向量数据库：**
@@ -235,7 +237,7 @@ npx @agentscope-ai/chat agentscope-runtime-webui --url http://localhost:8080/pro
 | `REDIS_MAX_CONNECTIONS` | ❌ 否 | `10` | Redis 最大连接数（仅 Redis 模式） |
 | `QDRANT_HOST` | ❌ 否 | `"127.0.0.1"` | Qdrant 服务器主机 |
 | `QDRANT_PORT` | ❌ 否 | `6333` | Qdrant 服务器端口 |
-| `MAX_TOKENS` | ❌ 否 | `600000` | 上下文窗口最大 token 数 |
+| `MAX_TOKENS` | ❌ 否 | `200000` | 上下文窗口最大 token 数（传递给 CharTokenCounter 时会乘以 3） |
 | `DJ_COPILOT_SERVICE_HOST` | ❌ 否 | `"127.0.0.1"` | 服务主机地址 |
 | `DJ_COPILOT_ENABLE_LOGGING` | ❌ 否 | `"true"` | 启用会话日志 |
 | `DJ_COPILOT_LOG_DIR` | ❌ 否 | `"./logs"` | 日志目录 |
@@ -255,7 +257,7 @@ model=DashScopeChatModel(
 )
 ```
 
-格式化器使用 `MAX_TOKENS` 环境变量（默认：600000）来限制上下文窗口大小。
+格式化器使用 `MAX_TOKENS` 环境变量（默认：200000）来限制上下文窗口大小。由于 `CharTokenCounter` 基于字符计数，中英文混合文本约 3 个字符 ≈ 1 个 token，因此在传递给 `DashScopeChatFormatter` 时会将该值乘以 3。
 
 ### 会话存储配置
 

@@ -92,7 +92,9 @@ You can chat with our [Q&A Copilot](./README.md) ***Juicer*** on the official [d
 
    **Model Configuration:**
    ```bash
-   export MAX_TOKENS="600000"  # Maximum tokens for context window (default: 600000)
+   export MAX_TOKENS="200000"  # Maximum tokens for context window (default: 200000)
+   # Note: This value is multiplied by 3 when passed to DashScopeChatFormatter
+   # because CharTokenCounter counts characters, and ~3 chars ≈ 1 token for mixed CHN & ENG text
    ```
 
    **Qdrant Vector Database:**
@@ -235,7 +237,7 @@ Refer to [AgentScope Runtime WebUI](https://runtime.agentscope.io/en/webui.html#
 | `REDIS_MAX_CONNECTIONS` | ❌ No | `10` | Redis max connections (Redis mode only) |
 | `QDRANT_HOST` | ❌ No | `"127.0.0.1"` | Qdrant server host |
 | `QDRANT_PORT` | ❌ No | `6333` | Qdrant server port |
-| `MAX_TOKENS` | ❌ No | `600000` | Maximum tokens for context window |
+| `MAX_TOKENS` | ❌ No | `200000` | Maximum tokens for context window (multiplied by 3 for CharTokenCounter) |
 | `DJ_COPILOT_SERVICE_HOST` | ❌ No | `"127.0.0.1"` | Service host address |
 | `DJ_COPILOT_ENABLE_LOGGING` | ❌ No | `"true"` | Enable session logging |
 | `DJ_COPILOT_LOG_DIR` | ❌ No | `"./logs"` | Log directory |
@@ -255,7 +257,7 @@ model=DashScopeChatModel(
 )
 ```
 
-The formatter uses `MAX_TOKENS` environment variable (default: 600000) to limit the context window size.
+The formatter uses `MAX_TOKENS` environment variable (default: 200000) to limit the context window size. Since `CharTokenCounter` counts characters and approximately 3 characters ≈ 1 token for mixed Chinese and English text, the value is multiplied by 3 when passed to `DashScopeChatFormatter`.
 
 ### Session Storage Configuration
 

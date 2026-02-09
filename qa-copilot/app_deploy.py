@@ -82,9 +82,13 @@ model = DashScopeChatModel(
     enable_thinking=True,
 )
 # formatter is used to format the messages for the model
-# 600,000 chars (CHN & ENG Mixed) is around 200,000 tokens, which fit the context window (256k) of the model
+# MAX_TOKENS specifies the maximum token count (default: 200000)
+# CharTokenCounter counts characters, and for mixed CHN & ENG text, 
+# approximately 3 characters ≈ 1 token, so we multiply by 3 when passing to formatter
+max_tokens_config = int(os.getenv("MAX_TOKENS", "200000"))
 formatter = DashScopeChatFormatter(
-    token_counter=CharTokenCounter(), max_tokens=int(os.getenv("MAX_TOKENS", "600000"))
+    token_counter=CharTokenCounter(), 
+    max_tokens=max_tokens_config * 3  # Convert token count to character count (×3)
 )
 toolkit = Toolkit()
 

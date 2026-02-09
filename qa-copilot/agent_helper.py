@@ -72,8 +72,10 @@ class JSONSessionHistoryService(object):
 
     async def get_memory(self, session_id: str, user_id: Optional[str] = None) -> List[Msg]:
         session_save_path = self.session._get_save_path(session_id, user_id)
-        logger.info(f"session_save_path: {session_save_path}")
-        if os.path.exists(session_save_path):
+        if not os.path.exists(session_save_path):
+            logger.warning(f"session_save_path={session_save_path} not exists")
+            return []
+        try:
             with open(
                 session_save_path,
                 "r",
@@ -85,8 +87,8 @@ class JSONSessionHistoryService(object):
                 temp_memory.load_state_dict(memory_states)
                 memory = await temp_memory.get_memory()
                 return memory
-        else:
-            logger.warning(f"session_save_path not exists")
+        except (json.JSONDecodeError, KeyError, TypeError) as e:
+            logger.warning(f"Failed to load or parse memory from {session_save_path}: {e}")
             return []
     
     async def delete_session(self, session_id: str, user_id: Optional[str] = None) -> None:
@@ -174,6 +176,7 @@ class RedisSessionHistoryService(object):
 
     async def get_memory(self, session_id: str, user_id: Optional[str] = None) -> List[Msg]:
         """Get memory content for a session."""
+        memory = None
         try:
             memory = RedisMemory(
                 connection_pool=self.get_connection_pool(),
@@ -181,15 +184,21 @@ class RedisSessionHistoryService(object):
                 session_id=session_id,
             )
             memory_content = await memory.get_memory()
-            client = memory.get_client()
-            await client.aclose()
             return memory_content
         except Exception as e:
             logger.warning(f"Failed to get memory for session {session_id}: {e}")
             return []
+        finally:
+            if memory:
+                try:
+                    client = memory.get_client()
+                    await client.aclose()
+                except Exception as e:
+                    logger.warning(f"Error closing Redis client for session {session_id}: {e}")
 
     async def delete_session(self, session_id: str, user_id: Optional[str] = None) -> None:
         """Delete a session."""
+        memory = None
         try:
             memory = RedisMemory(
                 connection_pool=self.get_connection_pool(),
@@ -197,10 +206,15 @@ class RedisSessionHistoryService(object):
                 session_id=session_id,
             )
             await memory.clear()
-            client = memory.get_client()
-            await client.aclose()
         except Exception as e:
             logger.warning(f"Failed to delete session {session_id}: {e}")
+        finally:
+            if memory:
+                try:
+                    client = memory.get_client()
+                    await client.aclose()
+                except Exception as e:
+                    logger.warning(f"Error closing Redis client for session {session_id}: {e}")
 
     async def load_session_state(self, session_id: str, agent: AgentBase, user_id: Optional[str] = None) -> None:
         """Load session state into agent.
