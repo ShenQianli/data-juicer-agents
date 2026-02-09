@@ -25,7 +25,7 @@ import asyncio
 import time
 import traceback
 from loguru import logger
-from typing import Optional, Dict, Any, List, Union, Literal, Callable, Awaitable
+from typing import Optional, Any, List, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field
 
 from agentscope.mcp import HttpStatelessClient
@@ -72,6 +72,7 @@ class JSONSessionHistoryService(object):
 
     async def get_memory(self, session_id: str, user_id: Optional[str] = None) -> List[Msg]:
         session_save_path = self.session._get_save_path(session_id, user_id)
+        logger.info(f"session_save_path: {session_save_path}")
         if os.path.exists(session_save_path):
             with open(
                 session_save_path,
@@ -79,9 +80,13 @@ class JSONSessionHistoryService(object):
                 encoding="utf-8",
                 errors="surrogatepass",
             ) as file:
-                states = json.load(file)
-                return [Msg(**msg) for msg in states["agent"]["memory"]["content"]]
+                memory_states = json.load(file)["agent"]["memory"]
+                temp_memory = InMemoryMemory()
+                temp_memory.load_state_dict(memory_states)
+                memory = await temp_memory.get_memory()
+                return memory
         else:
+            logger.warning(f"session_save_path not exists")
             return []
     
     async def delete_session(self, session_id: str, user_id: Optional[str] = None) -> None:
@@ -89,11 +94,11 @@ class JSONSessionHistoryService(object):
         if os.path.exists(session_save_path):
             os.remove(session_save_path)
 
-    async def load_session_state(self, session_id: str, agent: AgentBase) -> None:
-        await self.session.load_session_state(session_id=session_id, agent=agent)
+    async def load_session_state(self, session_id: str, agent: AgentBase, user_id: Optional[str] = None, ) -> None:
+        await self.session.load_session_state(session_id=session_id, agent=agent, user_id=user_id)
 
-    async def save_session_state(self, session_id: str, agent: AgentBase) -> None:
-        await self.session.save_session_state(session_id=session_id, agent=agent)
+    async def save_session_state(self, session_id: str, agent: AgentBase, user_id: Optional[str] = None) -> None:
+        await self.session.save_session_state(session_id=session_id, agent=agent, user_id=user_id)
 
     def create_memory(self, user_id: str, session_id: str):
         """Create an InMemoryMemory instance for the agent."""
@@ -197,7 +202,7 @@ class RedisSessionHistoryService(object):
         except Exception as e:
             logger.warning(f"Failed to delete session {session_id}: {e}")
 
-    async def load_session_state(self, session_id: str, agent: AgentBase) -> None:
+    async def load_session_state(self, session_id: str, agent: AgentBase, user_id: Optional[str] = None) -> None:
         """Load session state into agent.
         
         For Redis, session state is automatically managed by RedisMemory,
@@ -207,7 +212,7 @@ class RedisSessionHistoryService(object):
         # No manual loading needed
         pass
 
-    async def save_session_state(self, session_id: str, agent: AgentBase) -> None:
+    async def save_session_state(self, session_id: str, agent: AgentBase, user_id: Optional[str] = None) -> None:
         """Save agent state to session.
         
         For Redis, session state is automatically managed by RedisMemory,

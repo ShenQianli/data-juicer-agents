@@ -26,7 +26,7 @@ from agent_helper import (
     RedisSessionHistoryService,
     add_qa_tools,
     FeedbackRequest,
-    SessionLockManager
+    SessionLockManager,
 )
 
 
@@ -39,6 +39,8 @@ else:
 # Session-level locks to ensure requests for the same session are processed sequentially
 # This prevents state corruption and message history issues in concurrent scenarios
 session_lock_manager = SessionLockManager()
+
+session_history_service = None
 
 # Allow configuring FastAPI config file.
 FASTAPI_CONFIG_PATH = os.getenv("FASTAPI_CONFIG_PATH", "")
@@ -82,8 +84,7 @@ model = DashScopeChatModel(
 # formatter is used to format the messages for the model
 # 600,000 chars (CHN & ENG Mixed) is around 200,000 tokens, which fit the context window (256k) of the model
 formatter = DashScopeChatFormatter(
-    token_counter=CharTokenCounter(), 
-    max_tokens=int(os.getenv("MAX_TOKENS", "600000"))
+    token_counter=CharTokenCounter(), max_tokens=int(os.getenv("MAX_TOKENS", "600000"))
 )
 toolkit = Toolkit()
 
@@ -172,7 +173,7 @@ def _extract_user_text(user_input: Any) -> str:
 
 @app.init
 async def init_resources(self):
-    global _check_user_input_safety_func
+    global _check_user_input_safety_func, session_history_service
     print("🚀 Starting resources...")
 
     # Initialize safe check handler
@@ -182,35 +183,40 @@ async def init_resources(self):
     # Initialize session
     print(f"🚀 Initializing SessionHistoryService type={SESSION_STORE_TYPE}...")
     if SESSION_STORE_TYPE == "json":
-        self.session_history_service = TTLJSONSessionHistoryService(
+        session_history_service = TTLJSONSessionHistoryService(
             session_store_type=SESSION_STORE_TYPE,
             ttl_seconds=int(os.getenv("SESSION_TTL_SECONDS", "21600")),
             cleanup_interval=int(os.getenv("SESSION_CLEANUP_INTERVAL", "1800")),
-            session_cleanup_callback=session_lock_manager.cleanup_session_lock
+            session_cleanup_callback=session_lock_manager.cleanup_session_lock,
         )
-        await self.session_history_service.start()
-        print(f"✅ Initialized JSONSessionHistoryService with TTL: {int(os.getenv('SESSION_TTL_SECONDS', '21600'))} seconds")
+        await session_history_service.start()
+        print(
+            f"✅ Initialized JSONSessionHistoryService with TTL: {int(os.getenv('SESSION_TTL_SECONDS', '21600'))} seconds"
+        )
     elif SESSION_STORE_TYPE == "redis":
-        self.session_history_service = RedisSessionHistoryService(
+        session_history_service = RedisSessionHistoryService(
             session_store_type=SESSION_STORE_TYPE,
             redis_host=os.getenv("REDIS_HOST", "localhost"),
             redis_port=int(os.getenv("REDIS_PORT", "6379")),
             redis_db=int(os.getenv("REDIS_DB", "0")),
             redis_password=os.getenv("REDIS_PASSWORD", None),
-            redis_max_connections=int(os.getenv("REDIS_MAX_CONNECTIONS", "10"))
+            redis_max_connections=int(os.getenv("REDIS_MAX_CONNECTIONS", "10")),
         )
-        await self.session_history_service.start()
-        print(f"✅ Initialized RedisSessionHistoryService (TTL handled by Redis server)")
+        await session_history_service.start()
+        print(
+            f"✅ Initialized RedisSessionHistoryService (TTL handled by Redis server)"
+        )
     else:
         raise ValueError(f"❌ Invalid SESSION_STORE_TYPE: {SESSION_STORE_TYPE}")
-    
+
     await add_qa_tools(toolkit)
 
 
 @app.shutdown
 async def cleanup_resources(self):
-    if hasattr(self, 'session_history_service'):
-        await self.session_history_service.stop()
+    global session_history_service
+    if session_history_service:
+        await session_history_service.stop()
 
 
 @app.query(framework="agentscope")
@@ -224,13 +230,13 @@ async def query_func(
     Process query with session-level locking to prevent concurrent state corruption.
     Ensures requests for the same session are processed sequentially.
     """
-    global _check_user_input_safety_func
+    global _check_user_input_safety_func, session_history_service
     session_id = request.session_id
     user_id = request.user_id or session_id
 
     # Get session lock to ensure sequential processing for the same session
     session_lock = await session_lock_manager.get_session_lock(session_id)
-    
+
     # Acquire lock for the entire processing flow
     async with session_lock:
         # Timing metrics
@@ -258,7 +264,9 @@ async def query_func(
 
         # Set memory using unified interface
         # For JSON mode, create an InMemoryMemory instance
-        memory = self.session_history_service.create_memory(user_id=user_id, session_id=session_id)
+        memory = session_history_service.create_memory(
+            user_id=user_id, session_id=session_id
+        )
 
         # Build agent configuration
         agent_config = {
@@ -276,14 +284,16 @@ async def query_func(
         except Exception as e:
             print(f"[{session_id}] ❌ Error creating agent: {str(e)}")
             raise
-        
+
         # Attach session logger to agent so hooks can log tool usage
         agent.session_logger = logger
         agent.set_console_output_enabled(enabled=False)
 
         # Load session state (for JSON mode only; Redis mode doesn't need this check as load_session_state is a no-op)
         try:
-            await self.session_history_service.load_session_state(session_id=session_id, agent=agent)
+            await session_history_service.load_session_state(
+                session_id=session_id, agent=agent, user_id=user_id
+            )
         except Exception as e:
             print(f"[{session_id}] ❌ Error loading session state: {str(e)}")
             raise
@@ -302,7 +312,10 @@ async def query_func(
                     and isinstance(msg.content, list)
                 ):
                     for item in msg.content:
-                        if item.get("type", None) == "text" and item.get("text", "").strip():
+                        if (
+                            item.get("type", None) == "text"
+                            and item.get("text", "").strip()
+                        ):
                             first_token_time = time.perf_counter()
                             break
 
@@ -323,7 +336,7 @@ async def query_func(
                     )
 
                 yield msg, last
-            
+
             # Mark processing as completed if we reached here
             processing_completed = True
 
@@ -342,15 +355,15 @@ async def query_func(
             # Always save state, even if there was an error or client disconnect
             # This ensures state consistency and prevents tool_calls without responses
             try:
-                await self.session_history_service.save_session_state(session_id=session_id, agent=agent)
+                await session_history_service.save_session_state(
+                    session_id=session_id, agent=agent, user_id=user_id
+                )
             except Exception as e:
                 print(f"[{session_id}] ❌ Error saving state: {str(e)}")
-            
 
-            
             # Cleanup memory resources (e.g., close Redis connections)
             try:
-                await self.session_history_service.cleanup_memory(memory)
+                await session_history_service.cleanup_memory(memory)
             except Exception as e:
                 print(f"[{session_id}] ❌ Error cleaning up memory: {str(e)}")
 
@@ -372,15 +385,17 @@ async def query_func(
                 }
             )
 
+
 @app.endpoint("/memory")
-async def get_memory(self, request: AgentRequest):
+async def get_memory(request: AgentRequest):
     """Retrieve conversation history for a session."""
+    global session_history_service
     session_id = request.session_id
     user_id = request.user_id or session_id
     print(f"[{user_id}] 📥 Fetching memory for session: {session_id}")
 
     try:
-        memory_content = await self.session_history_service.get_memory(session_id, user_id)
+        memory_content = await session_history_service.get_memory(session_id, user_id)
 
         messages = []
         for msg in memory_content:
@@ -388,8 +403,8 @@ async def get_memory(self, request: AgentRequest):
             if hasattr(msg, "content"):
                 if isinstance(msg.content, list):
                     for item in msg.content:
-                        if getattr(item, "type", None) == "text":
-                            content_text += getattr(item, "text", "")
+                        if item.get("type", None) == "text":
+                            content_text += item.get("text", "")
                 elif isinstance(msg.content, str):
                     content_text = msg.content
 
@@ -398,7 +413,7 @@ async def get_memory(self, request: AgentRequest):
                     {
                         "role": msg.role,
                         "content": content_text.strip(),
-                        "id": getattr(msg, "metadata", {}).get("original_id", getattr(msg, "id", "")),
+                        "id": msg.id,
                         "metadata": msg,
                     }
                 )
@@ -412,15 +427,18 @@ async def get_memory(self, request: AgentRequest):
 
 
 @app.endpoint("/clear")
-async def clear_memory(self, request: AgentRequest):
+async def clear_memory(request: AgentRequest):
     """Clear conversation history for a session."""
+    global session_history_service
     session_id = request.session_id
     user_id = request.user_id or session_id
     print(f"[{user_id}] 🧹 Clearing memory for session: {session_id}")
 
     try:
-        await self.session_history_service.delete_session(session_id=session_id, user_id=user_id)
-        
+        await session_history_service.delete_session(
+            session_id=session_id, user_id=user_id
+        )
+
         # Clean up session lock regardless of store type
         await session_lock_manager.cleanup_session_lock(session_id=session_id)
         return {"status": "ok"}
