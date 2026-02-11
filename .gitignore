@@ -144,3 +144,11 @@ vector_index_cache/
 interactive_recipe/qa-copilot/asset/text_material/
 *.bak
 qdrant_storage/
+.djx/
+
+# Runtime artifacts under data/
+data/log/
+data/monitor/
+data/plan_*.yaml
+data/*-out-*.jsonl
+data/*-out-*_stats.jsonl

@@ -53,6 +53,11 @@ Data-Juicer Agents 采用 **多智能体路由架构** 来将用户请求路由�
 
 如果在使用过程中遇到任何问题，可以先查看[常见问题](#常见问题)，或前往文档页面向我们的问答 Copilot ***Juicer*** 提问。
 
+#### v0.1 Agentic CLI（开发中）
+
+- 新命令面快速上手请参考：[`docs/QuickStart_v0.1_ZH.md`](./docs/QuickStart_v0.1_ZH.md)
+- 核心命令：`djx plan`、`djx apply`、`djx trace`、`djx evaluate`
+
 ## 路线图
 
 **DJ-Agents** 的长期愿景是实现一个**零开发的数据处理生命周期**，让开发者能够把精力集中在 **“做什么”** 而不是 **“怎么做”** 上。
@@ -147,5 +152,4 @@ Data-Juicer Agents 采用 **多智能体路由架构** 来将用户请求路由�
   - [AgentScope](https://github.com/agentscope-ai/agentscope)
 
 **贡献方式**：欢迎通过 Issue 和 Pull Request 来改进 Data-Juicer Agents、Data-Juicer 以及 AgentScope。如果你在使用中遇到问题或有新功能建议，欢迎随时与我们联系。
-
 

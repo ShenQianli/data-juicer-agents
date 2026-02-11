@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 [project.scripts]
-dj-agents = "data_juicer_agents.cli:main"
+djx = "data_juicer_agents.cli:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=6.0", "black", "flake8", "mypy"]
@@ -49,9 +49,13 @@ Documentation = "https://github.com/datajuicer/data-juicer-agents#readme"
 [tool.setuptools]
 packages = [
     "data_juicer_agents",
+    "data_juicer_agents.agents",
     "data_juicer_agents.core",
+    "data_juicer_agents.commands",
+    "data_juicer_agents.runtime",
     "data_juicer_agents.tools",
     "data_juicer_agents.tools.op_manager",
+    "data_juicer_agents.utils",
     "qa-copilot",
     "qa-copilot.op_manager",
 ]
@@ -79,4 +83,3 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-
