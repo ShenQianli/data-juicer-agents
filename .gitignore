@@ -145,6 +145,7 @@ interactive_recipe/qa-copilot/asset/text_material/
 *.bak
 qdrant_storage/
 .djx/
+sessions/
 
 # Runtime artifacts under data/
 data/log/
