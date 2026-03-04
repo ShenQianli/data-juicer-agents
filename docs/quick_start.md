@@ -3,7 +3,6 @@
 ## 1. Prerequisites
 
 - Python `>=3.10,<3.13`
-- Node.js `>=18` (for Studio frontend)
 - Data-Juicer runtime (`py-data-juicer`)
 - DashScope/OpenAI-compatible API key
 
@@ -82,30 +81,10 @@ Notes:
 - `dj-agents` requires LLM access (API key/model config).
 - In plain mode, press `ESC` to interrupt the current turn.
 
-## 7. Start DJX Studio (Web)
+## 7. DJX Studio (future)
 
-Terminal A (API):
-
-```bash
-cd ./data-juicer-agents
-djx-ui-api --host 127.0.0.1 --port 8787
-```
-
-Terminal B (frontend):
-
-```bash
-cd ./data-juicer-agents/studio/frontend
-npm install
-npm run dev -- --host 127.0.0.1 --port 5173
-```
-
-Open [http://127.0.0.1:5173](http://127.0.0.1:5173).
-
-Studio features:
-- Tab panels: Chat / Recipe / Data / Settings
-- Chat tool/reasoning blocks with expand/collapse
-- Interrupt button for current turn
-- UI language switch (EN/ZH)
+- Studio API + Web frontend is deferred to a future release.
+- Current quick start only covers `djx` and `dj-agents`.
 
 ## 8. Basic sanity checks
 
@@ -118,4 +97,4 @@ djx --debug plan "filter long text" --dataset ./data/demo-dataset.jsonl --export
 If planning/session fails with API/model errors, verify:
 - `DASHSCOPE_API_KEY`
 - endpoint/model settings
-- Studio profile in `.djx/config.json` (for web session)
+- local profile in `.djx/config.json`

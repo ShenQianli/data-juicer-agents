@@ -14,8 +14,9 @@
 ## 最新动态
 
 - 🚀 [2026-03-04] **`data_juicer_agents` 已完成一次大规模重构与升级。**
-  - 我们对项目架构、CLI/会话能力、Studio 的 API/前端分层以及文档结构进行了系统性重设计，以提升可维护性与可扩展性。
+  - 我们对项目架构、CLI/会话能力与文档结构进行了系统性重设计，以提升可维护性与可扩展性。
   - 建议先阅读：[架构文档](./docs/overview_ZH.md) | [快速开始](./docs/quick_start_ZH.md)
+  - 说明：DJX Studio（API + Web UI）已调整为后续里程碑。
 
 - 🚀[2026-01-15] [Q&A Copilot](./qa-copilot/README_ZH.md) ***Juicer*** 已部署在 [Data-Juicer](https://github.com/datajuicer/data-juicer) 的官方 [文档网站](https://datajuicer.github.io/data-juicer/zh/main/index.html) | [钉钉群聊](https://qr.dingtalk.com/action/joingroup?code=v1,k1,N78tgW54U447gJP5aMC95B6qgQhlkVQS4+dp7qQq6MpuRVJIwrSsXmL8oFqU5ajJ&_dt_no_comment=1&origin=11?) | [Discord频道](https://discord.gg/ngQbB9hEVK) 上。欢迎向 ***Juicer*** 提出任何与 Data-Juicer 生态相关的问！
   - 查看 📃 [一键部署代码](./qa-copilot/) | 🎬 [更多演示](./qa-copilot/DEMO_ZH.md) | 🎯 [开发路线图](#路线图)。

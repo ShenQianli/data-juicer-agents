@@ -19,7 +19,7 @@ except Exception:  # pragma: no cover - non-posix runtime
     tty = None
 
 from data_juicer_agents.capabilities.session.orchestrator import DJSessionAgent
-from studio.api.agentscope_logging import install_thinking_warning_filter
+from data_juicer_agents.agentscope_logging import install_thinking_warning_filter
 
 
 def build_parser() -> argparse.ArgumentParser:

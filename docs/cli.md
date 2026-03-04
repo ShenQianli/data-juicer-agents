@@ -14,7 +14,6 @@
 
 Additional entries:
 - `dj-agents`: `data_juicer_agents/session_cli.py`
-- `djx-ui-api`: `studio/api/cli.py`
 
 ## Global Output Levels (`djx`)
 
@@ -150,18 +149,8 @@ Behavior:
 
 Interrupt:
 - plain mode: press `ESC` to interrupt current turn
-- Studio/API mode: use `/api/session/interrupt`
+- tui mode: press `ESC` to interrupt current turn
 
-## `djx-ui-api`
+## Future Scope
 
-```bash
-djx-ui-api --host 127.0.0.1 --port 8787 [--reload]
-```
-
-Route groups:
-- `/api/health`
-- `/api/settings/*`
-- `/api/session/start|message|events|state|stop|interrupt`
-- `/api/plan` (GET/POST)
-- `/api/data/preview`
-- `/api/data/compare-by-run`
+- `DJX Studio` (API + Web UI) is deferred to a future release.

@@ -3,7 +3,6 @@
 ## 1. 环境前置
 
 - Python `>=3.10,<3.13`
-- Node.js `>=18`（Studio 前端需要）
 - Data-Juicer 运行时（`py-data-juicer`）
 - DashScope/OpenAI 兼容 API Key
 
@@ -82,30 +81,10 @@ dj-agents --ui plain --dataset ./data/demo-dataset.jsonl --export ./data/demo-da
 - `dj-agents` 必须可访问 LLM（需 API Key/模型配置）。
 - 在 plain 模式下可按 `ESC` 中断当前轮。
 
-## 7. 启动 DJX Studio（Web）
+## 7. DJX Studio（未来项）
 
-终端 A（API）：
-
-```bash
-cd ./data-juicer-agents
-djx-ui-api --host 127.0.0.1 --port 8787
-```
-
-终端 B（前端）：
-
-```bash
-cd ./data-juicer-agents/studio/frontend
-npm install
-npm run dev -- --host 127.0.0.1 --port 5173
-```
-
-打开 [http://127.0.0.1:5173](http://127.0.0.1:5173)。
-
-Studio 主要能力：
-- 标签页面板：Chat / Recipe / Data / Settings
-- Chat 内联 tool/reasoning 折叠块
-- 当前轮中断按钮
-- 中英文 UI 切换
+- Studio API + Web 前端能力已延后到后续版本。
+- 当前快速开始仅覆盖 `djx` 与 `dj-agents`。
 
 ## 8. 最小检查
 
@@ -118,4 +97,4 @@ djx --debug plan "过滤长文本" --dataset ./data/demo-dataset.jsonl --export 
 若 planning/session 出现模型或 API 错误，优先检查：
 - `DASHSCOPE_API_KEY`
 - endpoint/model 配置
-- Web 会话使用的 `.djx/config.json` profile
+- 本地 `.djx/config.json` profile

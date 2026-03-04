@@ -17,13 +17,13 @@ from typing import Dict
 from rich.console import Console
 from rich.text import Text
 
+from data_juicer_agents.agentscope_logging import install_thinking_warning_filter
 from data_juicer_agents.tui.controller import SessionController
 from data_juicer_agents.tui.event_adapter import apply_event
 from data_juicer_agents.tui.models import TimelineItem
 from data_juicer_agents.tui.models import TuiState
 from data_juicer_agents.tui.noise_filter import install_tui_warning_filters
 from data_juicer_agents.tui.noise_filter import sanitize_reasoning_text
-from studio.api.agentscope_logging import install_thinking_warning_filter
 
 try:
     import termios

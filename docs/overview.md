@@ -5,7 +5,7 @@
 Primary entries:
 - `djx`: deterministic CLI command set for planning/execution/dev/trace/evaluate.
 - `dj-agents`: natural-language ReAct session orchestrator.
-- `djx-ui-api` + `studio/frontend`: local Studio API and web UI.
+- `DJX Studio` (future): API + web UI is planned as a later milestone.
 
 ## Positioning
 
@@ -23,10 +23,6 @@ Design goals:
 flowchart LR
   U["User or External Agent"] --> CLI["djx CLI"]
   U --> SESS["dj-agents Session"]
-  U --> FE["Studio Frontend"]
-
-  FE --> API["djx-ui-api (FastAPI)"]
-  API --> SESS
 
   CLI --> CMD["data_juicer_agents/commands"]
   SESS --> STOOL["Session Tool Wrappers"]
@@ -58,15 +54,8 @@ flowchart LR
   - `trace`: run trace persistence/query.
 - `data_juicer_agents/tools/`
   - Reusable primitives (dataset probing, operator retrieval/registry, llm gateway, dev scaffold, workflow routing helpers).
-- `studio/api/`
-  - API-first backend:
-  - `routes/` endpoint layer.
-  - `services/` orchestration layer.
-  - `repositories/` persistence adapters (settings).
-  - `managers/` session lifecycle/runtime management.
-  - `models/` request/response contracts.
-- `studio/frontend/`
-  - React UI with tabbed panels: Chat / Recipe / Data / Settings.
+- `DJX Studio` (future scope)
+  - API-first backend and web UI are intentionally out of current release scope.
 
 ## Core Flows
 
@@ -87,21 +76,20 @@ Typical planning chain:
 
 `apply_recipe` requires explicit confirmation.
 
-### 3) Studio workflow
+### 3) Studio (future)
 
-- Frontend calls `djx-ui-api`.
-- API manages session lifecycle/events, interrupt requests, plan load/save, and data preview/compare.
-- Chat view renders assistant messages, reasoning blocks, and tool blocks (args/result).
+- Studio API/frontend implementation is deferred for a later release.
+- Current release scope focuses on `djx` and `dj-agents`.
 
 ## Runtime Artifacts
 
 - `.djx/runs.jsonl`: run-level trace records.
 - `.djx/recipes/`: generated recipes for execution.
 - `.djx/session_plans/`: session-saved plan files.
-- `.djx/config.json`: Studio settings profiles.
+- `.djx/config.json`: local settings profiles (currently for CLI/session model defaults).
 - `data/`: datasets, plans, and example outputs.
 
 ## Scope Notes
 
 - `interactive_recipe/` and `qa-copilot/` are independent subsystems.
-- This doc focuses on current DJX surfaces: `djx`, `dj-agents`, `djx-ui-api`, and Studio frontend.
+- This doc focuses on current DJX surfaces: `djx` and `dj-agents`.

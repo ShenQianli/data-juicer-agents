@@ -41,7 +41,6 @@ dependencies = [
 [project.scripts]
 djx = "data_juicer_agents.cli:main"
 dj-agents = "data_juicer_agents.session_cli:main"
-djx-ui-api = "studio.api.cli:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=6.0", "black", "flake8", "mypy"]
@@ -65,13 +64,6 @@ packages = [
     "data_juicer_agents.tui",
     "data_juicer_agents.tools",
     "data_juicer_agents.tools.op_manager",
-    "studio",
-    "studio.api",
-    "studio.api.routes",
-    "studio.api.services",
-    "studio.api.repositories",
-    "studio.api.managers",
-    "studio.api.models",
     "qa-copilot",
     "qa-copilot.op_manager",
 ]

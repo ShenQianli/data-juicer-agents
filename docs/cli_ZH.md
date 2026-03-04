@@ -14,7 +14,6 @@
 
 其他入口：
 - `dj-agents`：`data_juicer_agents/session_cli.py`
-- `djx-ui-api`：`studio/api/cli.py`
 
 ## 全局输出级别（`djx`）
 
@@ -150,18 +149,8 @@ dj-agents [--dataset <path>] [--export <path>] [--verbose] [--ui plain|tui]
 
 中断方式：
 - plain 模式：按 `ESC` 中断当前轮
-- Studio/API 模式：调用 `/api/session/interrupt`
+- tui 模式：按 `ESC` 中断当前轮
 
-## `djx-ui-api`
+## 未来范围
 
-```bash
-djx-ui-api --host 127.0.0.1 --port 8787 [--reload]
-```
-
-接口分组：
-- `/api/health`
-- `/api/settings/*`
-- `/api/session/start|message|events|state|stop|interrupt`
-- `/api/plan`（GET/POST）
-- `/api/data/preview`
-- `/api/data/compare-by-run`
+- `DJX Studio`（API + Web UI）已调整为后续版本发布。
