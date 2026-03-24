@@ -636,7 +636,18 @@ uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </s
 <p>说明：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">djx</span> <span class="pre">plan</span></code> 在构建最终 plan 之前会先做内部算子检索。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">djx</span> <span class="pre">retrieve</span></code> 仍适合用于观察和调试候选算子。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">djx</span> <span class="pre">retrieve</span></code> 适合用于观察和调试候选算子。</p></li>
+</ul>
+<p>最短原子工具路径：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>djx<span class="w"> </span>tool<span class="w"> </span>list<span class="w"> </span>--tag<span class="w"> </span>plan
+djx<span class="w"> </span>tool<span class="w"> </span>schema<span class="w"> </span>inspect_dataset
+djx<span class="w"> </span>tool<span class="w"> </span>run<span class="w"> </span>list_system_config<span class="w"> </span>--input-json<span class="w"> </span><span class="s1">&#39;{}&#39;</span>
+</pre></div>
+</div>
+<p>说明：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">djx</span> <span class="pre">tool</span></code> 默认是 JSON-only，主要服务 agent / skill 自动化调用。</p></li>
+<li><p>写入或执行类工具需要显式传 <code class="docutils literal notranslate"><span class="pre">--yes</span></code>。</p></li>
 </ul>
 </section>
 <section id="dj-agents">
