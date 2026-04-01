@@ -378,6 +378,12 @@ def _finalize_candidate_payload(
 
     if not normalized_names and info_rows and allow_lexical_fallback:
         normalized_names = _lexical_fallback(intent, info_rows=info_rows, top_k=top_k)
+        retrieval_source = "lexical"
+        retrieval_trace.append(
+            trace_step(
+                "lexical", "selected", reason="fallback_after_remote_empty_or_failed"
+            )
+        )
 
     candidates = [
         _build_candidate_row(

@@ -100,8 +100,17 @@ def test_retrieval_service_falls_back_to_lexical(monkeypatch):
         "get_available_operator_names",
         lambda: {"document_deduplicator", "text_length_filter"},
     )
+    monkeypatch.setattr(
+        svc,
+        "resolve_operator_name",
+        lambda name, available_ops=None: (
+            ""
+            if str(name).strip() == "TotallyInvalidOperatorName"
+            else str(name).strip()
+        ),
+    )
 
-    payload = retrieve_operator_candidates(
+    payload = svc.retrieve_operator_candidates(
         intent="need dedup for text corpus",
         top_k=5,
         mode="auto",
@@ -110,6 +119,74 @@ def test_retrieval_service_falls_back_to_lexical(monkeypatch):
     assert payload["candidate_count"] >= 1
     assert payload["retrieval_source"] == "lexical"
     assert payload["retrieval_trace"][-1]["backend"] == "lexical"
+    names = [item["operator_name"] for item in payload["candidates"]]
+    assert "document_deduplicator" in names
+
+
+def test_retrieval_service_normalization_empty_updates_lexical_source(monkeypatch):
+    """If raw retrieval names fail normalization, lexical fallback must update source/trace."""
+    from data_juicer_agents.tools.retrieve._shared import logic as svc
+
+    rows = [
+        {
+            "class_name": "document_deduplicator",
+            "class_desc": "Deduplicate documents",
+            "arguments": "lowercase (bool): Whether to lowercase.",
+        },
+        {
+            "class_name": "text_length_filter",
+            "class_desc": "Filter text by length",
+            "arguments": "min_len (int): min length",
+        },
+    ]
+
+    monkeypatch.setattr(
+        svc,
+        "_load_op_retrieval_funcs",
+        lambda: (lambda: rows, lambda: True, None, None),
+    )
+    monkeypatch.setattr(
+        svc,
+        "_safe_async_retrieve",
+        lambda intent, top_k, mode, op_type=None, tags=None: {
+            "names": ["TotallyInvalidOperatorName"],
+            "source": "llm",
+            "trace": [{"backend": "llm", "status": "success"}],
+            "items": [
+                {
+                    "tool_name": "TotallyInvalidOperatorName",
+                    "description": "bad candidate",
+                    "relevance_score": 99.0,
+                    "score_source": "llm",
+                }
+            ],
+        },
+    )
+    monkeypatch.setattr(
+        svc,
+        "get_available_operator_names",
+        lambda: {"document_deduplicator", "text_length_filter"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "resolve_operator_name",
+        lambda name, available_ops=None: (
+            ""
+            if str(name).strip() == "TotallyInvalidOperatorName"
+            else str(name).strip()
+        ),
+    )
+
+    payload = svc.retrieve_operator_candidates(
+        intent="need dedup for text corpus",
+        top_k=5,
+        mode="auto",
+    )
+    assert payload["ok"] is True
+    assert payload["candidate_count"] >= 1
+    assert payload["retrieval_source"] == "lexical"
+    assert payload["retrieval_trace"][-1]["backend"] == "lexical"
+    assert payload["retrieval_trace"][-1]["reason"] == "fallback_after_remote_empty_or_failed"
     names = [item["operator_name"] for item in payload["candidates"]]
     assert "document_deduplicator" in names
 

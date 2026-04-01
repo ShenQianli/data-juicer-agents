@@ -10,7 +10,7 @@ It serves three consumers:
 
 - CLI and command surfaces
 - the AgentScope-backed `dj-agents` session
-- skills（coming soon）
+- skills
 
 The key rule is:
 
@@ -227,4 +227,4 @@ These tools stay generic. Session orchestration must call them with explicit arg
 - `adapters/agentscope/*` adapts tools to AgentScope transport/schema
 - `capabilities/session/*` orchestrates tools conversationally without changing tool semantics
 
-This is the internal shape that future atomic CLI and skills（coming soon） should build on.
+This is the internal shape that future atomic CLI and skills should build on.
