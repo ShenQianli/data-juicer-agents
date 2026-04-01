@@ -3,7 +3,7 @@
 
 import pytest
 
-from data_juicer_agents.tools.retrieve.retrieve_operators.backend.result_builder import (
+from data_juicer_agents.tools.retrieve._shared.backend.result_builder import (
     build_retrieval_item,
     filter_by_op_type,
     names_from_items,
@@ -236,7 +236,7 @@ def test_trace_step_none_values_become_empty_strings():
 # filter_by_tags
 # ---------------------------------------------------------------------------
 
-from data_juicer_agents.tools.retrieve.retrieve_operators.backend.result_builder import filter_by_tags
+from data_juicer_agents.tools.retrieve._shared.backend.result_builder import filter_by_tags
 
 @pytest.fixture()
 def tagged_ops():

@@ -9,6 +9,9 @@ def test_default_tool_registry_contains_core_specs():
     names = set(registry.names())
     assert "inspect_dataset" in names
     assert "retrieve_operators" in names
+    assert "retrieve_operators_api" in names
+    assert "get_operator_info" in names
+    assert "list_operator_catalog" in names
     assert "build_dataset_spec" in names
     assert "build_process_spec" in names
     assert "assemble_plan" in names
@@ -33,6 +36,9 @@ def test_tool_catalog_discovers_group_definitions():
     discovered_names = {spec.name for spec in load_all_tool_specs()}
     assert "inspect_dataset" in discovered_names
     assert "retrieve_operators" in discovered_names
+    assert "retrieve_operators_api" in discovered_names
+    assert "get_operator_info" in discovered_names
+    assert "list_operator_catalog" in discovered_names
     assert "build_dataset_spec" in discovered_names
     assert "build_process_spec" in discovered_names
     assert "assemble_plan" in discovered_names

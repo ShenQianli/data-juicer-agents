@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Input models for retrieve_operators."""
+"""Input models for retrieve_operators_api."""
 
 from __future__ import annotations
 
@@ -8,30 +8,28 @@ from typing import List, Literal
 from pydantic import BaseModel, Field
 
 
-class RetrieveOperatorsInput(BaseModel):
+class RetrieveOperatorsAPIInput(BaseModel):
     intent: str = Field(
         description=(
-            "Retrieval query. For natural-language modes (auto, bm25), "
-            "provide a plain-text description of the desired operators. "
-            "For regex mode, provide a regular expression pattern to match operator names."
+            "Retrieval query for API-backed semantic retrieval. "
+            "Provide a plain-text description of the desired operators."
         )
     )
     top_k: int = Field(default=10, ge=1, description="Maximum number of operator candidates to return.")
-    mode: Literal["auto", "bm25", "regex"] = Field(
+    mode: Literal["auto", "llm", "vector"] = Field(
         default="auto",
         description=(
-            "Retrieval mode. "
-            "'auto': local-only automatic routing (regex for regex-like queries, otherwise bm25). "
-            "'bm25': BM25 keyword matching (no API key needed, fast). "
-            "'regex': regex pattern matching on operator names (no API key needed, fastest)."
+            "API-backed retrieval mode. "
+            "'auto': tries llm -> vector. "
+            "'llm': semantic ranking via LLM. "
+            "'vector': FAISS vector similarity."
         ),
     )
     op_type: str = Field(
         default="",
         description=(
             "Optional operator type filter (e.g. 'filter', 'mapper', 'deduplicator', "
-            "'selector', 'grouper', 'aggregator', 'pipeline'). When provided, only operators of "
-            "the specified type are considered during retrieval."
+            "'selector', 'grouper', 'aggregator', 'pipeline')."
         ),
     )
     tags: List[str] = Field(
@@ -39,7 +37,7 @@ class RetrieveOperatorsInput(BaseModel):
         description=(
             "Modality/resource tags to filter operators "
             "(e.g. 'text', 'image', 'multimodal', 'audio', 'video', 'cpu', 'gpu', 'api'). "
-            "Only operators whose tag set contains ALL of the specified tags are returned (match-all semantics)."
+            "Only operators whose tag set contains ALL of the specified tags are returned."
         ),
     )
     dataset_path: str = Field(
@@ -49,6 +47,7 @@ class RetrieveOperatorsInput(BaseModel):
             "via inspect_dataset_schema and the inferred tags are merged with any explicit tags."
         ),
     )
+
 
 class GenericOutput(BaseModel):
     ok: bool = True

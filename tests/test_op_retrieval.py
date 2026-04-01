@@ -21,7 +21,7 @@ _skip_no_api_key = pytest.mark.skipif(
 @_skip_no_api_key
 def test_retrieve_ops_with_meta_llm():
     """Real LLM retrieval - requires DASHSCOPE_API_KEY."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     payload = asyncio.run(
         mod.retrieve_ops_with_meta("filter text by length", limit=5, mode="llm")
@@ -33,7 +33,7 @@ def test_retrieve_ops_with_meta_llm():
 @_skip_no_api_key
 def test_retrieve_ops_with_meta_vector():
     """Real vector retrieval - requires DASHSCOPE_API_KEY."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     payload = asyncio.run(
         mod.retrieve_ops_with_meta("deduplicate documents", limit=5, mode="vector")
@@ -44,7 +44,7 @@ def test_retrieve_ops_with_meta_vector():
 @_skip_no_api_key
 def test_retrieve_ops_with_meta_auto():
     """Real auto retrieval - requires DASHSCOPE_API_KEY."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     payload = asyncio.run(
         mod.retrieve_ops_with_meta("filter text by length", limit=5, mode="auto")
@@ -58,8 +58,8 @@ def test_retrieve_ops_with_meta_auto():
 
 def test_retrieve_ops_with_meta_auto_mock_all_fail(monkeypatch):
     """Mock test: auto mode returns empty when all backends fail."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as retrieval_mod
-    from data_juicer_agents.tools.retrieve.retrieve_operators.backend.retriever import _strategy
+    import data_juicer_agents.tools.retrieve._shared.backend as retrieval_mod
+    from data_juicer_agents.tools.retrieve._shared.backend.retriever import _strategy
 
     async def fail_llm_retrieve_items(_self, _query, limit=20, op_type=None, tags=None):  # noqa: ARG001
         raise RuntimeError("llm unavailable")
@@ -97,7 +97,7 @@ def test_retrieve_ops_with_meta_auto_mock_all_fail(monkeypatch):
 
 def test_get_op_catalog_returns_non_empty_list():
     """get_op_catalog returns a non-empty list of operator dicts."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators.backend import get_op_catalog
+    from data_juicer_agents.tools.retrieve._shared.backend import get_op_catalog
 
     catalog = get_op_catalog()
     assert isinstance(catalog, list)
@@ -109,7 +109,7 @@ def test_get_op_catalog_returns_non_empty_list():
 
 def test_get_op_catalog_caches_result():
     """Consecutive get_op_catalog calls return the same cached object."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators.backend import get_op_catalog
+    from data_juicer_agents.tools.retrieve._shared.backend import get_op_catalog
 
     result1 = get_op_catalog()
     result2 = get_op_catalog()
@@ -117,11 +117,11 @@ def test_get_op_catalog_caches_result():
 
 def test_refresh_op_catalog_updates_cache():
     """refresh_op_catalog reloads and updates the cached catalog."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators.backend import (
+    from data_juicer_agents.tools.retrieve._shared.backend import (
         get_op_catalog,
         refresh_op_catalog,
     )
-    from data_juicer_agents.tools.retrieve.retrieve_operators.backend.cache import (
+    from data_juicer_agents.tools.retrieve._shared.backend.cache import (
         CK_OP_CATALOG,
         cache_manager,
     )
@@ -143,13 +143,13 @@ def test_refresh_op_catalog_updates_cache():
 
 def test_retrieve_ops_vector_skips_disk_when_memory_cached(monkeypatch):
     """Vector retrieval uses memory cache and skips disk loading."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
-    from data_juicer_agents.tools.retrieve.retrieve_operators.backend.cache import (
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
+    from data_juicer_agents.tools.retrieve._shared.backend.cache import (
         CK_TOOLS_INFO,
         CK_VECTOR_STORE,
         cache_manager,
     )
-    from data_juicer_agents.tools.retrieve.retrieve_operators.backend.retriever import VectorRetriever
+    from data_juicer_agents.tools.retrieve._shared.backend.retriever import VectorRetriever
 
     fake_tools_info = [
         {"class_name": "text_length_filter", "class_desc": "Filter by length", "class_type": "filter"},
@@ -188,7 +188,7 @@ def test_retrieve_ops_vector_skips_disk_when_memory_cached(monkeypatch):
 
 def test_retrieve_ops_with_meta_passes_op_type_to_bm25(monkeypatch):
     """BM25 retrieval correctly filters by op_type."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     monkeypatch.delenv("DASHSCOPE_API_KEY", raising=False)
     monkeypatch.delenv("MODELSCOPE_API_TOKEN", raising=False)
@@ -206,7 +206,7 @@ def test_retrieve_ops_with_meta_passes_op_type_to_bm25(monkeypatch):
 
 def test_retrieve_ops_without_api_key_falls_back_to_bm25(monkeypatch):
     """Auto mode falls back to BM25 when no API key is configured."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     monkeypatch.delenv("DASHSCOPE_API_KEY", raising=False)
     monkeypatch.delenv("MODELSCOPE_API_TOKEN", raising=False)
@@ -223,7 +223,7 @@ def test_retrieve_ops_without_api_key_falls_back_to_bm25(monkeypatch):
 
 def test_retrieve_ops_regex_items_basic():
     """retrieve_ops_regex_items returns items matching a regex pattern."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     items = mod.retrieve_ops_regex_items("text_length", limit=10)
     assert len(items) == 1
@@ -233,7 +233,7 @@ def test_retrieve_ops_regex_items_basic():
 
 def test_retrieve_ops_regex_items_with_op_type():
     """retrieve_ops_regex_items filters results by op_type."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     items = mod.retrieve_ops_regex_items("text.*filter", limit=5, op_type="filter")
     for item in items:
@@ -241,7 +241,7 @@ def test_retrieve_ops_regex_items_with_op_type():
 
 def test_retrieve_ops_regex_returns_name_list():
     """retrieve_ops_regex_items returns items whose names can be extracted."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     items = mod.retrieve_ops_regex_items("text_len|document", limit=10)
     names = [item["tool_name"] for item in items]
@@ -251,21 +251,21 @@ def test_retrieve_ops_regex_returns_name_list():
 
 def test_retrieve_ops_regex_items_invalid_pattern():
     """retrieve_ops_regex_items handles invalid regex gracefully."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     items = mod.retrieve_ops_regex_items("[invalid(regex", limit=5)
     assert items == []
 
 def test_retrieve_ops_regex_items_respects_limit():
     """retrieve_ops_regex_items respects the limit parameter."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     items = mod.retrieve_ops_regex_items("filter", limit=3)
     assert len(items) == 3
 
 def test_retrieve_ops_with_meta_regex_mode():
     """retrieve_ops_with_meta correctly dispatches regex mode."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     payload = asyncio.run(
         mod.retrieve_ops_with_meta(
@@ -283,7 +283,7 @@ def test_retrieve_ops_with_meta_regex_mode():
 
 def test_retrieve_ops_with_meta_regex_mode_with_op_type():
     """retrieve_ops_with_meta passes op_type to regex backend."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     payload = asyncio.run(
         mod.retrieve_ops_with_meta(
@@ -299,7 +299,7 @@ def test_retrieve_ops_with_meta_regex_mode_with_op_type():
 
 def test_retrieve_ops_with_meta_regex_mode_empty_result():
     """retrieve_ops_with_meta returns empty payload when regex matches nothing."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators import backend as mod
+    import data_juicer_agents.tools.retrieve._shared.backend as mod
 
     payload = asyncio.run(
         mod.retrieve_ops_with_meta(

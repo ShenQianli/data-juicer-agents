@@ -36,6 +36,9 @@ def test_session_toolkit_selects_explicit_tools_without_session_tags():
     assert all("session" not in spec.tags for spec in specs)
     assert "inspect_dataset" in names
     assert "retrieve_operators" in names
+    assert "retrieve_operators_api" in names
+    assert "get_operator_info" in names
+    assert "list_operator_catalog" in names
     assert "build_dataset_spec" in names
     assert "build_process_spec" in names
     assert "build_system_spec" in names
@@ -90,6 +93,15 @@ def test_session_agent_staged_plan_validate_save_with_explicit_payloads(tmp_path
     )
     assert retrieved["ok"] is True
     assert "text_length_filter" in [c["operator_name"] for c in retrieved["candidates"]]
+
+    op_info = invoke_tool_spec(
+        registry.get("get_operator_info"),
+        ctx=ctx,
+        raw_kwargs={"operator_name": "text_length_filter"},
+    )
+    assert op_info["ok"] is True
+    assert op_info["resolved_name"] == "text_length_filter"
+    assert any(item["name"] == "max_len" for item in op_info["parameters"])
 
     dataset_spec = invoke_tool_spec(
         registry.get("build_dataset_spec"),

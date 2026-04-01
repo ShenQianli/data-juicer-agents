@@ -8,7 +8,7 @@ from functools import lru_cache
 from typing import Dict, List, Sequence, Tuple
 
 from .contracts import ToolSpec
-from .profiles import groups_for_tool_profile
+from .profiles import groups_for_tool_profile, tool_is_excluded_from_profile
 
 
 @dataclass
@@ -75,7 +75,10 @@ def build_default_tool_registry(
 
 
 def get_tool_spec(name: str, *, profile: str | None = None) -> ToolSpec:
-    return build_default_tool_registry(profile=profile).get(name)
+    spec = build_default_tool_registry(profile=profile).get(name)
+    if tool_is_excluded_from_profile(spec.name, profile):
+        raise KeyError(f"tool not found: {name}")
+    return spec
 
 
 def list_tool_specs(
@@ -83,7 +86,8 @@ def list_tool_specs(
     tags: Sequence[str] | None = None,
     profile: str | None = None,
 ) -> List[ToolSpec]:
-    return build_default_tool_registry(profile=profile).list(tags=tags)
+    specs = build_default_tool_registry(profile=profile).list(tags=tags)
+    return [spec for spec in specs if not tool_is_excluded_from_profile(spec.name, profile)]
 
 
 __all__ = [

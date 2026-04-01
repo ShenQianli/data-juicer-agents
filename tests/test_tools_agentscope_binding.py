@@ -19,6 +19,16 @@ def test_build_agentscope_json_schema_uses_input_model():
     assert schema["function"]["name"] == "retrieve_operators"
     assert "intent" in schema["function"]["parameters"]["properties"]
     assert "top_k" in schema["function"]["parameters"]["properties"]
+    assert schema["function"]["parameters"]["properties"]["mode"]["enum"] == ["auto", "bm25", "regex"]
+
+
+def test_build_agentscope_json_schema_for_retrieve_operators_api():
+    spec = build_default_tool_registry().get("retrieve_operators_api")
+    schema = build_agentscope_json_schema(spec)
+
+    assert schema["type"] == "function"
+    assert schema["function"]["name"] == "retrieve_operators_api"
+    assert schema["function"]["parameters"]["properties"]["mode"]["enum"] == ["auto", "llm", "vector"]
 
 
 def test_build_process_spec_schema_stays_shallow_for_agent_calls():

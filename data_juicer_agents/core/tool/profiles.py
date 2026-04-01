@@ -12,6 +12,7 @@ TOOL_PROFILE_ENV_VAR = "DJX_TOOL_PROFILE"
 HARNESS_TOOL_GROUPS: Tuple[str, ...] = (
     "apply",
     "context",
+    "retrieve",
     "plan",
 )
 HARNESS_EXCLUDED_TOOL_NAMES: Tuple[str, ...] = (
@@ -19,7 +20,7 @@ HARNESS_EXCLUDED_TOOL_NAMES: Tuple[str, ...] = (
     "execute_python_code",
     "execute_shell_command",
     "insert_text_file",
-    "retrieve_operators",
+    "retrieve_operators_api",
     "view_text_file",
     "write_text_file",
 )

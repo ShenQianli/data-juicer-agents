@@ -5,7 +5,7 @@ import threading
 
 import pytest
 
-from data_juicer_agents.tools.retrieve.retrieve_operators.backend.cache import (
+from data_juicer_agents.tools.retrieve._shared.backend.cache import (
     CK_OP_CATALOG,
     CK_OP_SEARCHER,
     CK_TOOLS_INFO,
@@ -202,5 +202,5 @@ def test_concurrent_invalidate_all_does_not_raise(mgr):
 
 def test_module_singleton_is_accessible():
     """Verify the module-level cache_manager singleton is importable."""
-    from data_juicer_agents.tools.retrieve.retrieve_operators.backend.cache import cache_manager
+    from data_juicer_agents.tools.retrieve._shared.backend.cache import cache_manager
     assert cache_manager is not None

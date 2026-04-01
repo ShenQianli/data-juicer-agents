@@ -7,7 +7,7 @@ from data_juicer_agents.core.tool import ToolContext, ToolResult, ToolSpec
 from data_juicer_agents.utils.runtime_helpers import to_int
 
 from .input import GenericOutput, RetrieveOperatorsInput
-from .logic import extract_candidate_names, retrieve_operator_candidates
+from .logic import retrieve_operator_candidates_local
 
 
 def _retrieve_operators(_ctx: ToolContext, args: RetrieveOperatorsInput) -> ToolResult:
@@ -26,7 +26,7 @@ def _retrieve_operators(_ctx: ToolContext, args: RetrieveOperatorsInput) -> Tool
     dataset_path = (args.dataset_path.strip() if getattr(args, "dataset_path", None) else None) or None
 
     try:
-        payload = retrieve_operator_candidates(
+        payload = retrieve_operator_candidates_local(
             intent=args.intent.strip(),
             top_k=max(to_int(args.top_k, 10), 1),
             mode=(args.mode.strip() or "auto"),
@@ -50,7 +50,10 @@ def _retrieve_operators(_ctx: ToolContext, args: RetrieveOperatorsInput) -> Tool
 
 RETRIEVE_OPERATORS = ToolSpec(
     name="retrieve_operators",
-    description="Retrieve candidate Data-Juicer operators for a natural-language intent.",
+    description=(
+        "Retrieve candidate Data-Juicer operators using local retrieval. "
+        "Supports natural-language search (auto, bm25) and regex matching on operator names (regex)."
+    ),
     input_model=RetrieveOperatorsInput,
     output_model=GenericOutput,
     executor=_retrieve_operators,

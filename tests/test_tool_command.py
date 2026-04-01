@@ -54,8 +54,11 @@ def test_tool_list_harness_profile_excludes_non_harness_groups(monkeypatch, caps
     names = {item["name"] for item in payload["tools"]}
     assert payload["profile"] == "harness"
     assert "inspect_dataset" in names
+    assert "retrieve_operators" in names
+    assert "get_operator_info" in names
+    assert "list_operator_catalog" in names
+    assert "retrieve_operators_api" not in names
     assert "develop_operator" not in names
-    assert "retrieve_operators" not in names
     assert "write_text_file" not in names
     assert "execute_shell_command" not in names
     assert "execute_python_code" not in names
@@ -83,13 +86,41 @@ def test_tool_schema_unknown_tool_returns_exit_2(capsys):
 def test_tool_schema_harness_profile_rejects_excluded_tool(monkeypatch, capsys):
     monkeypatch.setenv("DJX_TOOL_PROFILE", "harness")
 
-    code = main(["tool", "schema", "write_text_file"])
+    code = main(["tool", "schema", "retrieve_operators_api"])
     assert code == 2
 
     payload = json.loads(capsys.readouterr().out)
     assert payload["ok"] is False
     assert payload["error_type"] == "tool_not_available_in_profile"
     assert payload["profile"] == "harness"
+
+
+def test_tool_schema_harness_profile_allows_local_retrieve_tool(monkeypatch, capsys):
+    monkeypatch.setenv("DJX_TOOL_PROFILE", "harness")
+
+    code = main(["tool", "schema", "retrieve_operators"])
+    assert code == 0
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is True
+    assert payload["profile"] == "harness"
+    assert payload["tool"]["name"] == "retrieve_operators"
+    assert payload["input_schema"]["properties"]["mode"]["enum"] == ["auto", "bm25", "regex"]
+
+
+def test_tool_schema_harness_profile_allows_list_operator_catalog(monkeypatch, capsys):
+    monkeypatch.setenv("DJX_TOOL_PROFILE", "harness")
+
+    code = main(["tool", "schema", "list_operator_catalog"])
+    assert code == 0
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is True
+    assert payload["profile"] == "harness"
+    assert payload["tool"]["name"] == "list_operator_catalog"
+    props = payload["input_schema"]["properties"]
+    assert "include_parameters" in props
+    assert "limit" in props
 
 
 def test_tool_schema_harness_profile_rejects_dev_tool(monkeypatch, capsys):
@@ -300,6 +331,28 @@ def test_tool_run_tool_failure_returns_exit_4(tmp_path: Path, capsys):
     payload = json.loads(capsys.readouterr().out)
     assert payload["ok"] is False
     assert payload["error_type"] == "file_not_found"
+
+
+def test_tool_run_retrieve_operators_api_missing_key_returns_failure(monkeypatch, capsys):
+    monkeypatch.delenv("DASHSCOPE_API_KEY", raising=False)
+    monkeypatch.delenv("MODELSCOPE_API_TOKEN", raising=False)
+
+    code = main(
+        [
+            "tool",
+            "run",
+            "retrieve_operators_api",
+            "--input-json",
+            json.dumps({"intent": "filter long text", "mode": "auto"}),
+        ]
+    )
+    assert code == 4
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is False
+    assert payload["error_type"] == "missing_api_key"
+    assert payload["retrieval_trace"]
+    assert all(item["reason"] == "missing_api_key" for item in payload["retrieval_trace"])
 
 
 def test_tool_list_invalid_profile_returns_exit_2(monkeypatch, capsys):
