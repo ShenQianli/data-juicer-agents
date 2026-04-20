@@ -194,7 +194,7 @@ def test_trace_step_basic():
 
 
 def test_trace_step_with_error():
-    entry = trace_step("vector", "failed", error="connection timeout")
+    entry = trace_step("bm25", "failed", error="connection timeout")
     assert entry["error"] == "connection timeout"
     assert "reason" not in entry
 

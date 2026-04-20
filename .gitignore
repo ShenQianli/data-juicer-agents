@@ -145,6 +145,5 @@ data/202*/
 data/log/
 data/monitor/
 plans/
-data_juicer_agents/tools/retrieve/_shared/backend/vector_index_cache/
 skills/data-juicer-agents-harness/agents/
 qa-copilot/sessions/

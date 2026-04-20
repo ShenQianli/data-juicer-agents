@@ -29,8 +29,6 @@ dj-agents = "data_juicer_agents.session_cli:main"
 [project.optional-dependencies]
 core = [
     "agentscope==1.0.14",
-    "faiss-cpu>=1.13.1",
-    "langchain-community",
     "openai",
     "prompt-toolkit>=3.0.36",
     "py-data-juicer>=1.5.1",
@@ -48,8 +46,6 @@ full = [
     "dashscope",
     "docstring-parser>=0.16",
     "emoji",
-    "faiss-cpu>=1.13.1",
-    "langchain-community",
     "loguru",
     "matplotlib",
     "openai",
@@ -99,9 +95,7 @@ dev = [
     "dashscope",
     "docstring-parser>=0.16",
     "emoji",
-    "faiss-cpu>=1.13.1",
     "flake8",
-    "langchain-community",
     "loguru",
     "matplotlib",
     "mypy",

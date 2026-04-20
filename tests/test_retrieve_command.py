@@ -36,7 +36,7 @@ def test_retrieve_command_accepts_bm25_mode(capsys):
 def test_retrieve_command_missing_core_dependency_reports_install_hint(monkeypatch, capsys):
     def _fake_import_module(name, package=None):
         if name == "data_juicer_agents.commands.retrieve_cmd":
-            raise ModuleNotFoundError(name="langchain_community")
+            raise ModuleNotFoundError(name="agentscope")
         return real_import_module(name, package)
 
     monkeypatch.setattr("data_juicer_agents.cli.import_module", _fake_import_module)
