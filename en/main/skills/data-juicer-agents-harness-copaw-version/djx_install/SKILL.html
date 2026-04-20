@@ -595,7 +595,7 @@ uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </s
 <span class="c1"># Development dependencies (pytest, black, etc.)</span>
 uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
 
-<span class="c1"># QA / vector search dependencies</span>
+<span class="c1"># QA dependencies</span>
 uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[qa]&quot;</span>
 
 <span class="c1"># All optional dependencies</span>
@@ -647,9 +647,6 @@ which<span class="w"> </span>djx
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">transformers</span></code></p></td>
 <td><p>HuggingFace transformers</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">faiss-cpu</span></code></p></td>
-<td><p>Vector similarity search</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -671,7 +668,7 @@ djx<span class="w"> </span>tool<span class="w"> </span>list<span class="w">  </s
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import data_juicer; print(&#39;OK&#39;)&quot;</span>
 
 <span class="c1"># □ 5. Test a simple command</span>
-djx<span class="w"> </span>tool<span class="w"> </span>run<span class="w"> </span>inspect_dataset<span class="w"> </span>--input-json<span class="w"> </span><span class="s1">&#39;{&quot;dataset_path&quot;: &quot;test.jsonl&quot;, &quot;sample_size&quot;: 5}&#39;</span>
+djx<span class="w"> </span>tool<span class="w"> </span>run<span class="w"> </span>inspect_dataset<span class="w"> </span>--input-json<span class="w"> </span><span class="s1">&#39;{&quot;dataset_source&quot;: {&quot;path&quot;: &quot;test.jsonl&quot;}, &quot;sample_size&quot;: 5}&#39;</span>
 <span class="c1"># If no test file exists, it will report file not found, but confirms the tool is available</span>
 </pre></div>
 </div>
